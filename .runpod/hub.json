@@ -1,25 +1,31 @@
 {
   "name": "elabs / Wan 2.2 TI2V",
   "description": "Wan 2.2 text+image-to-video generates videos conditioned on both a text prompt and an input image. Combines prompt understanding with visual grounding for coherent video generation. API: POST JSON with {image_base64, prompt, duration_seconds, fps, cfg_scale, seed} -> {video_base64, prompt, duration_s, fps, seed, wall_time_s}. GPU: requires >=16GB VRAM (RTX 4090, L40S, A6000+).",
+  "iconUrl": "https://pub-796a08821c1c483aaf5e274e0d03e350.r2.dev/hub-icons/wan-ti2v.svg",
   "type": "serverless",
   "category": "video",
-
   "config": {
     "runsOn": "GPU",
     "containerDiskInGb": 40,
     "gpuCount": 1,
     "gpuIds": "ADA_24,ADA_48,AMPERE_48",
     "allowedCudaVersions": [
-      "12.8", "12.7", "12.6", "12.5", "12.4", "12.3", "12.2", "12.1", "12.0"
+      "12.8",
+      "12.7",
+      "12.6",
+      "12.5",
+      "12.4",
+      "12.3",
+      "12.2",
+      "12.1",
+      "12.0"
     ],
-
     "env": [
       {
         "key": "PYTORCH_CUDA_ALLOC_CONF",
         "value": "expandable_segments:True"
       }
     ],
-
     "presets": [
       {
         "name": "Fast (4s 480p)",
