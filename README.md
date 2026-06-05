@@ -1,77 +1,88 @@
 # elabs / Wan 2.2 TI2V
 
-[![Run on RunPod](https://runpod.io/badge/runpod-hub)](https://runpod.io/console/hub)
+Wan 2.2 Text+Image-to-Video (TI2V). Animate any image with a text prompt. Powered by Wan-AI's 14B diffusion model.
 
-Wan 2.2 text+image-to-video generates videos conditioned on both a text prompt and an input image. Combines prompt understanding with visual grounding for coherent video generation — weights baked into the Docker image.
+[![Docker Build](https://github.com/ELABS-AI/wan-2.2-ti2v-runpod-worker/actions/workflows/build.yml/badge.svg)](https://github.com/ELABS-AI/wan-2.2-ti2v-runpod-worker/actions/workflows/build.yml)
 
-## Highlights
+---
 
-- **Text + image conditioning** — prompt-driven video generation grounded in a reference image
-- **Configurable duration** — 2–8 seconds with fine-grained fps control
-- **CFG scale tuning** — adjust how strongly the model follows the text prompt
-- **Seed control** — reproducible generations with fixed seeds
-- **Weights baked in** — no HF token, no gated access, no cold-download
-- **GPU**: requires ≥16 GB VRAM (RTX 4090, L40S, A6000+)
+## Quick Start
 
-## API
+Deploy this worker on [RunPod Serverless](https://www.runpod.io/serverless) using the **Deploy on RunPod** button in the Hub, or manually with the Docker image:
+
+```
+ghcr.io/elabs-ai/wan-2.2-ti2v-runpod-worker:latest
+```
+
+---
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MODEL_ID` | `Wan-AI/Wan2.2-TI2V-A14B-Diffusers` | HuggingFace model ID for Wan 2.2 TI2V |
+| `HF_HOME` | `/runpod-volume/models/huggingface` | HuggingFace cache directory |
+| `HUGGINGFACE_HUB_CACHE` | `/runpod-volume/models/huggingface/hub` | HuggingFace hub cache |
+| `PYTORCH_CUDA_ALLOC_CONF` | `expandable_segments:True` | CUDA memory allocator config |
+| `HF_TOKEN` | `your_token_here` | HuggingFace token (if model is gated) |
+
+> **Note:** `HF_HOME` and `HUGGINGFACE_HUB_CACHE` should point to a RunPod Network Volume mount path for model caching between runs.
+
+---
+
+## API Reference
 
 ### Input
 
 ```json
-{
-  "input": {
-    "image_base64": "<base64-encoded PNG/JPG input image>",
-    "prompt": "a serene mountain lake at sunrise, gentle waves rippling",
-    "duration_seconds": 4,
-    "fps": 16,
-    "height": 480,
-    "width": 832,
-    "cfg_scale": 5.0,
-    "seed": -1
-  }
-}
+{"input": {"image_b64": "<base64 image>", "prompt": "a cat walking gracefully", "num_frames": 16, "fps": 8}}
 ```
 
 ### Output
 
 ```json
-{
-  "video_base64": "<base64-encoded MP4 video>",
-  "prompt": "a serene mountain lake at sunrise, gentle waves rippling",
-  "duration_s": 4,
-  "fps": 16,
-  "seed": 42,
-  "wall_time_s": 14.2
-}
+{"video_b64": "<base64 MP4>", "wall_time_s": 45.0}
 ```
 
-### Parameters
+---
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image_base64` | string | **required** | Base64-encoded input image (PNG or JPG) |
-| `prompt` | string | **required** | Text prompt describing desired video content |
-| `duration_seconds` | int | `4` | Output video length in seconds (2–8) |
-| `fps` | int | `16` | Frames per second (8–30) |
-| `height` | int | `480` | Output video height (in 16px multiples) |
-| `width` | int | `832` | Output video width (in 16px multiples) |
-| `cfg_scale` | float | `5.0` | Classifier-free guidance scale (1.0–15.0) |
-| `seed` | int | `null` | Fixed seed for reproducibility (`-1` or `null` = random) |
+## Usage Examples
+
+### Python (runpod SDK)
+
+```python
+import runpod
+import base64
+
+client = runpod.AsyncioEndpointClient("wan-2.2-ti2v-runpod-worker")
+result = await client.run({"input": {"image_b64": "<base64 image>", "prompt": "a cat walking gracefully", "num_frames": 16, "fps": 8}})
+print(result)
+```
+
+### cURL
+
+```bash
+curl -X POST https://api.runpod.ai/v2/YOUR_ENDPOINT_ID/run \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"input": {"image_b64": "<base64 image>", "prompt": "a cat walking gracefully", "num_frames": 16, "fps": 8}}'
+
+```
+
+---
 
 ## GPU Requirements
 
-- **Recommended**: RTX 4090 (24 GB) / RTX 6000 Ada (48 GB) / L40S (48 GB)
-- **Minimum**: Any GPU with ≥16 GB VRAM (A6000, A6000+, etc.)
-- **CUDA**: 12.0+
+L40S / RTX 4090 (48GB VRAM recommended) | ~30-60s per clip | Apache 2.0 license
 
-## Benchmark
-
-| GPU | Resolution | Duration | FPS | Time |
-|---|---|---|---|---|
-| RTX 4090 | 832×480 | 4s | 16 | ~14s |
-| RTX 4090 | 1280×720 | 8s | 24 | ~50s |
-| L40S | 1280×720 | 8s | 24 | ~40s |
+---
 
 ## License
 
-Apache-2.0 — Wan 2.2 TI2V weights and inference implementation.
+Apache 2.0 — See [LICENSE](LICENSE)
+
+---
+
+## Built by [E-Labs AI](https://www.elabsai.com)
+
+Part of the E-Labs AI Studio serverless model fleet. Visit [elabsai.com](https://www.elabsai.com) to use these models in a hosted UI.
