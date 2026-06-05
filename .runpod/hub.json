@@ -1,14 +1,14 @@
 {
-  "name": "elabs / Wan 2.2 TI2V",
-  "description": "Wan 2.2 text+image-to-video generates videos conditioned on both a text prompt and an input image. Combines prompt understanding with visual grounding for coherent video generation. API: POST JSON with {image_base64, prompt, duration_seconds, fps, cfg_scale, seed} -> {video_base64, prompt, duration_s, fps, seed, wall_time_s}. GPU: requires >=16GB VRAM (RTX 4090, L40S, A6000+).",
-  "iconUrl": "https://pub-796a08821c1c483aaf5e274e0d03e350.r2.dev/hub-icons/wan-ti2v.svg",
-  "type": "serverless",
+  "title": "elabs / Wan 2.2 TI2V",
+  "description": "Wan 2.2 Text+Image-to-Video generation. Animates an input image guided by a text prompt. Input: {image_b64, prompt, num_frames, fps} \u2192 Output: {video_b64, wall_time_s}.",
   "category": "video",
+  "type": "serverless",
+  "iconUrl": "https://pub-796a08821c1c483aaf5e274e0d03e350.r2.dev/hub-icons/wan.svg",
   "config": {
     "runsOn": "GPU",
-    "containerDiskInGb": 40,
+    "containerDiskInGb": 20,
     "gpuCount": 1,
-    "gpuIds": "ADA_24,ADA_48,AMPERE_48",
+    "gpuIds": "ADA_24,ADA_48_PRO,AMPERE_24",
     "allowedCudaVersions": [
       "12.8",
       "12.7",
@@ -22,28 +22,16 @@
     ],
     "env": [
       {
-        "key": "PYTORCH_CUDA_ALLOC_CONF",
-        "value": "expandable_segments:True"
-      }
-    ],
-    "presets": [
-      {
-        "name": "Fast (4s 480p)",
-        "defaults": {
-          "DURATION_SECONDS": "4",
-          "FPS": "16",
-          "HEIGHT": "480",
-          "WIDTH": "832"
-        }
+        "key": "MODEL_ID",
+        "value": "Wan-AI/Wan2.2-TI2V-A14B-Diffusers"
       },
       {
-        "name": "Quality (8s 720p)",
-        "defaults": {
-          "DURATION_SECONDS": "8",
-          "FPS": "24",
-          "HEIGHT": "720",
-          "WIDTH": "1280"
-        }
+        "key": "HF_HOME",
+        "value": "/runpod-volume/models/huggingface"
+      },
+      {
+        "key": "PYTORCH_CUDA_ALLOC_CONF",
+        "value": "expandable_segments:True"
       }
     ]
   }
